@@ -1,0 +1,179 @@
+[user]
+    # Set your name and email
+    name = CHANGE_ME
+    email = CHANGE_ME
+    # Uncomment and set your GPG key ID for commit signing
+    # signingkey = YOUR_GPG_KEY_ID
+
+[core]
+    editor = code --wait
+    autocrlf = input
+    excludesfile = ~/.gitignore_global
+    pager = delta
+    quotepath = false
+
+[init]
+    defaultBranch = main
+
+[commit]
+    # Uncomment to enable GPG signing
+    # gpgsign = true
+    template = ~/.gitmessage
+
+[push]
+    default = current
+    autoSetupRemote = true
+    followTags = true
+
+[pull]
+    rebase = true
+
+[fetch]
+    prune = true
+
+[rebase]
+    autoStash = true
+
+[merge]
+    tool = vscode
+    conflictstyle = diff3
+
+[mergetool "vscode"]
+    cmd = code --wait $MERGED
+
+[diff]
+    tool = vscode
+    colorMoved = default
+
+[difftool "vscode"]
+    cmd = code --wait --diff $LOCAL $REMOTE
+
+[delta]
+    navigate = true
+    light = false
+    line-numbers = true
+    syntax-theme = Dracula
+    plus-style = "syntax #012800"
+    minus-style = "syntax #340001"
+
+[interactive]
+    diffFilter = delta --color-only
+
+[color]
+    ui = auto
+    branch = auto
+    diff = auto
+    interactive = auto
+    status = auto
+
+[color "branch"]
+    current = yellow reverse
+    local = yellow
+    remote = green
+
+[color "diff"]
+    meta = yellow bold
+    frag = magenta bold
+    old = red bold
+    new = green bold
+
+[color "status"]
+    added = yellow
+    changed = green
+    untracked = cyan
+
+[alias]
+    # Basic shortcuts
+    st = status
+    co = checkout
+    br = branch
+    ci = commit
+    ca = commit --amend
+    cm = commit -m
+
+    # Enhanced logging
+    lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
+    lga = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --all
+    lol = log --graph --decorate --pretty=oneline --abbrev-commit
+    lola = log --graph --decorate --pretty=oneline --abbrev-commit --all
+
+    # Show changes
+    show-staged = diff --cached
+    show-unstaged = diff
+    what = show --pretty="format:" --name-only
+
+    # Stash operations
+    stash-all = stash save --include-untracked
+    stash-unstaged = stash save --keep-index
+    stash-staged = stash save --staged
+
+    # Branch operations
+    branches = branch -a
+    remotes = remote -v
+    recent = branch --sort=-committerdate
+
+    # Cleanup
+    prune-branches = remote prune origin
+    delete-merged = "!git branch --merged | grep -v '\\*\\|master\\|main\\|develop' | xargs -n 1 git branch -d"
+    cleanup = "!git branch --merged | grep -v '\\*\\|master\\|main\\|develop' | xargs -n 1 git branch -d && git remote prune origin"
+
+    # Quick operations
+    unstage = reset HEAD --
+    discard = checkout --
+    undo = reset --soft HEAD~1
+    amend = commit --amend --no-edit
+
+    # Information
+    who = shortlog -sn --
+    whoami = config user.email
+    contributors = shortlog --summary --numbered
+
+    # Working with remotes
+    upstream = rev-parse --abbrev-ref --symbolic-full-name @{u}
+    root = rev-parse --show-toplevel
+
+    # Search
+    grep-all = "!git rev-list --all | xargs git grep"
+    find-file = "!git ls-files | grep -i"
+
+    # Advanced
+    find-merge = "!sh -c 'commit=$0 && branch=${1:-HEAD} && (git rev-list $commit..$branch --ancestry-path | cat -n; git rev-list $commit..$branch --first-parent | cat -n) | sort -k2 -s | uniq -f1 -d | sort -n | tail -1 | cut -f2'"
+    show-merge = "!sh -c 'merge=$(git find-merge $0 $1) && [ -n \"$merge\" ] && git show $merge'"
+
+    # Productivity
+    save = "!git add -A && git commit -m 'WIP: savepoint'"
+    wip = commit -am "WIP"
+    unwip = "!git log -n 1 | grep -q -c 'WIP' && git reset HEAD~1"
+
+    # Conventional commits
+    feat = "!f() { git commit -m \"feat: $1\"; }; f"
+    fix = "!f() { git commit -m \"fix: $1\"; }; f"
+    docs = "!f() { git commit -m \"docs: $1\"; }; f"
+    style = "!f() { git commit -m \"style: $1\"; }; f"
+    refactor = "!f() { git commit -m \"refactor: $1\"; }; f"
+    test = "!f() { git commit -m \"test: $1\"; }; f"
+    chore = "!f() { git commit -m \"chore: $1\"; }; f"
+
+[url "ssh://git@github.com/"]
+    insteadOf = https://github.com/
+
+[filter "lfs"]
+    clean = git-lfs clean -- %f
+    smudge = git-lfs smudge -- %f
+    process = git-lfs filter-process
+    required = true
+
+[credential]
+    helper = osxkeychain
+
+[gpg]
+    program = gpg
+
+[rerere]
+    enabled = true
+
+[help]
+    autocorrect = 1
+
+[tag]
+    sort = version:refname
