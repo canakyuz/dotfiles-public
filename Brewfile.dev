@@ -1,0 +1,117 @@
+##############################################################################
+# 🛠️ Professional Developer Dotfiles - Brewfile.dev (OPTIONAL)
+# Development languages, version managers, build tools, databases
+#
+# Install with: brew bundle install --file Brewfile.dev
+##############################################################################
+
+# Taps
+tap "homebrew/services"
+
+##############################################################################
+## VERSION MANAGERS - Runtime version switching
+##############################################################################
+
+brew "nvm"            # Node.js version manager
+brew "pyenv"          # Python version manager
+brew "rbenv"          # Ruby version manager
+brew "jenv"           # Java version manager
+
+##############################################################################
+## LANGUAGES & RUNTIMES
+##############################################################################
+
+# Node.js (also install via nvm after setup)
+brew "node"
+
+# Python
+brew "python@3.12"
+
+# Java
+brew "openjdk@17"
+
+# Go
+brew "go"
+
+# Rust
+brew "rust"
+
+# PHP
+brew "php"
+
+# Ruby
+brew "ruby"
+
+##############################################################################
+## BUILD TOOLS
+##############################################################################
+
+brew "cmake"          # C/C++ build system
+brew "maven"          # Java build tool
+brew "gradle"         # Java/Kotlin build tool
+
+##############################################################################
+## DATABASES - Optional database servers
+##############################################################################
+
+tap "mongodb/brew"
+
+brew "postgresql@15"
+brew "mysql"
+brew "redis"
+brew "mongodb/brew/mongodb-community"
+brew "sqlite"
+
+##############################################################################
+## DevOps & CLOUD TOOLS - Optional container & infrastructure tools
+##############################################################################
+
+brew "docker"
+brew "docker-compose"
+brew "kubernetes-cli"
+brew "helm"
+
+# Optional: Uncomment if needed
+# brew "terraform"
+# brew "ansible"
+# brew "awscli"
+
+##############################################################################
+## OPTIONAL CLI ENHANCEMENTS
+##############################################################################
+
+brew "lazygit"        # Git TUI (if you prefer visual git)
+brew "glab"           # GitLab CLI (if using GitLab)
+brew "ncdu"           # Disk usage (if not in Brewfile)
+brew "btop"           # Process monitor
+brew "dust"           # du replacement
+brew "duf"            # df replacement
+brew "procs"          # ps replacement
+brew "neovim"         # Vim replacement
+brew "helix"          # Modern editor
+brew "httpie"         # HTTP client
+brew "nmap"           # Network scanner
+brew "mkcert"         # Local HTTPS certificates
+
+##############################################################################
+## TEXT EDITORS & TERMINAL
+##############################################################################
+
+cask "iterm2"         # Terminal emulator
+cask "alacritty"      # GPU-accelerated terminal
+cask "visual-studio-code"  # VS Code (if not using JetBrains)
+
+##############################################################################
+## DATABASE TOOLS
+##############################################################################
+
+cask "dbeaver-community"   # SQL database tool
+cask "tableplus"           # Modern database client
+cask "mongodb-compass"     # MongoDB UI (optional)
+
+##############################################################################
+## API & WEB DEVELOPMENT
+##############################################################################
+
+cask "postman"        # API testing (optional)
+cask "insomnia"       # REST client (optional)

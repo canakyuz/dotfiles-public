@@ -193,20 +193,34 @@ vscode:
 	fi
 
 ##@ Maintenance
-## Create symbolic links
+## Create symbolic links for all dotfiles
 links:
 	@echo "$(BLUE)🔗 Creating symbolic links...$(RESET)"
+	@mkdir -p "$(HOME)/.config/zsh"
 	@if [ -f "$(CONFIG_DIR)/zsh/.zshrc" ]; then \
 		ln -sf "$(CONFIG_DIR)/zsh/.zshrc" "$(HOME)/.zshrc"; \
+		ln -sf "$(CONFIG_DIR)/zsh/.zshrc" "$(HOME)/.config/zsh/zshrc"; \
 		echo "$(GREEN)✓$(RESET) .zshrc linked"; \
 	fi
 	@if [ -f "$(CONFIG_DIR)/zsh/.zshenv" ]; then \
 		ln -sf "$(CONFIG_DIR)/zsh/.zshenv" "$(HOME)/.zshenv"; \
 		echo "$(GREEN)✓$(RESET) .zshenv linked"; \
 	fi
+	@if [ -f "$(CONFIG_DIR)/zsh/aliases.zsh" ]; then \
+		ln -sf "$(CONFIG_DIR)/zsh/aliases.zsh" "$(HOME)/.config/zsh/aliases.zsh"; \
+		echo "$(GREEN)✓$(RESET) aliases linked"; \
+	fi
+	@if [ -f "$(CONFIG_DIR)/zsh/functions.zsh" ]; then \
+		ln -sf "$(CONFIG_DIR)/zsh/functions.zsh" "$(HOME)/.config/zsh/functions.zsh"; \
+		echo "$(GREEN)✓$(RESET) functions linked"; \
+	fi
 	@if [ -f "$(CONFIG_DIR)/git/.gitconfig" ]; then \
 		ln -sf "$(CONFIG_DIR)/git/.gitconfig" "$(HOME)/.gitconfig"; \
 		echo "$(GREEN)✓$(RESET) .gitconfig linked"; \
+	fi
+	@if [ -f "$(CONFIG_DIR)/git/.gitignore_global" ]; then \
+		ln -sf "$(CONFIG_DIR)/git/.gitignore_global" "$(HOME)/.gitignore_global"; \
+		echo "$(GREEN)✓$(RESET) .gitignore_global linked"; \
 	fi
 	@if [ -f "$(CONFIG_DIR)/tmux/.tmux.conf" ]; then \
 		ln -sf "$(CONFIG_DIR)/tmux/.tmux.conf" "$(HOME)/.tmux.conf"; \

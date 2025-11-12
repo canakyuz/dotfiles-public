@@ -1,0 +1,60 @@
+##############################################################################
+# 💻 Professional Developer Dotfiles - Brewfile.ide (OPTIONAL)
+# IDE & Advanced Editor Installation
+#
+# Install with: brew bundle install --file Brewfile.ide
+#
+# Note: JetBrains Toolbox is the recommended way to manage IDEs.
+# You can install only the IDEs you need below.
+##############################################################################
+
+tap "homebrew/cask-fonts"
+
+##############################################################################
+## JETBRAINS SUITE - Professional IDEs (Choose what you need)
+##############################################################################
+
+# Package Management
+cask "jetbrains-toolbox"  # Recommended: Use this to manage all JetBrains IDEs
+
+# Individual IDEs (uncomment only what you need)
+# Web & Full-Stack Development
+cask "webstorm"        # JavaScript/TypeScript IDE
+
+# Python Development
+cask "pycharm"         # Python IDE
+
+# Java Development
+cask "intellij-idea"   # Java/Kotlin IDE
+
+# Go Development
+cask "goland"          # Go IDE
+
+# PHP Development
+cask "phpstorm"        # PHP IDE
+
+# .NET Development
+cask "rider"           # C#/.NET IDE
+
+# Ruby Development
+cask "rubymine"        # Ruby/Rails IDE
+
+# C/C++ Development
+cask "clion"           # C/C++ IDE
+
+# Database Management
+cask "datagrip"        # SQL & database IDE
+
+##############################################################################
+## ALTERNATIVE EDITORS
+##############################################################################
+
+cask "cursor"          # AI-powered code editor
+cask "sublime-text"    # Lightweight text editor
+
+##############################################################################
+## TERMINAL EMULATORS (Advanced alternatives)
+##############################################################################
+
+cask "warp"            # Modern terminal with AI
+cask "hyper"           # Electron-based terminal
