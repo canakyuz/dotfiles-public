@@ -1,0 +1,130 @@
+#!/bin/sh
+# Dotfiles'taki alias ve fonksiyonları, ne çalıştırdıkları ve nerede geçerli oldukları ile listeler.
+#   info            hepsi
+#   info <kelime>   adında, komutunda ya da açıklamasında kelime geçenler
+#   info <ad>       tek bir komutun tanımı ve dosyadaki yeri
+# Açıklamalar kaynak dosyadaki "#:" yorumlarından, bölümler "#@" başlıklarından okunur.
+
+set -eu
+DOTFILES=${DOTFILES:-$(cd "$(dirname "$0")/.." && pwd -P)}
+q=${1:-}
+
+case $q in -h|--help) sed -n '2,6p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;; esac
+
+case $(uname) in Darwin) here=mac ;; *) here=sunucu ;; esac
+
+# kaynak dosya | katman adı
+sources() {
+  echo "$DOTFILES/shell/common.sh|her yer"
+  echo "$DOTFILES/shell/mac.sh|mac"
+  echo "$DOTFILES/shell/linux.sh|sunucu"
+  [ -f "$HOME/.zshrc.local" ] && echo "$HOME/.zshrc.local|bu makine"
+  return 0
+}
+
+# Her tanım için bir satır: katman, bölüm, ad, çalıştırdığı, açıklama, dosya, satır (sekmeyle ayrılmış)
+parse() {
+  sources | while IFS='|' read -r file layer; do
+    LC_ALL=C awk -v layer="$layer" '
+      function trim(s) { sub(/^[ \t]+/, "", s); sub(/[ \t]+$/, "", s); return s }
+      function out(name, run) {
+        if (name ~ /^_/) return
+        gsub(/\t/, " ", run)
+        printf "%s\t%s\t%s\t%s\t%s\t%s\t%d\n", layer, sec, name, run, desc, FILENAME, FNR
+      }
+      /^#@ / { sec = substr($0, 4); next }
+      /^[ \t]*#/ { next }
+      {
+        line = $0; desc = ""
+        i = index(line, "#:")
+        if (i) { desc = trim(substr(line, i + 2)); line = substr(line, 1, i - 1) }
+        line = trim(line)
+      }
+      match(line, /alias [^ =]+=/) {
+        rest = substr(line, RSTART + 6); eq = index(rest, "=")
+        name = substr(rest, 1, eq - 1); val = substr(rest, eq + 1)
+        q1 = substr(val, 1, 1)
+        if (q1 == "\047" || q1 == "\"") { val = substr(val, 2); if (substr(val, length(val)) == q1) val = substr(val, 1, length(val) - 1) }
+        out(name, val); next
+      }
+      match(line, /^[A-Za-z_][A-Za-z0-9_.-]*\(\) *\{/) {
+        name = substr(line, 1, index(line, "(") - 1)
+        body = trim(substr(line, RLENGTH + 1))
+        if (body ~ /\}$/) { sub(/[ ;]*\}$/, "", body); out(name, body) }
+        else out(name, "(fonksiyon, tanım: info " name ")")
+        next
+      }
+      match(line, /^hash -d [^=]+=/) {
+        rest = substr(line, 9); eq = index(rest, "=")
+        out("~" substr(rest, 1, eq - 1), "cd " substr(rest, eq + 1)); next
+      }
+    ' "$file"
+  done
+}
+
+where() {
+  case $1 in
+    "her yer")   echo "mac ve sunucu, zsh ve bash" ;;
+    mac)         echo "sadece macOS" ;;
+    sunucu)      echo "sadece Linux sunucu" ;;
+    "bu makine") echo "sadece bu bilgisayar (~/.zshrc.local, repoda yok)" ;;
+  esac
+}
+
+rows=$(parse)
+
+# Tam ad eşleşmesi: tanımı göster
+exact=$(printf '%s\n' "$rows" | awk -F '\t' -v q="$q" '$3 == q' )
+if [ -n "$q" ] && [ -n "$exact" ]; then
+  printf '%s\n' "$exact" | while IFS="$(printf '\t')" read -r layer sec name run desc file ln; do
+    printf '\n%s  (%s, %s)\n' "$name" "$layer" "$sec"
+    [ -n "$desc" ] && printf '  ne yapar:  %s\n' "$desc"
+    printf '  nerede:    %s\n' "$(where "$layer")"
+    printf '  dosya:     %s:%s\n\n' "$(echo "$file" | sed "s|^$DOTFILES/||; s|^$HOME|~|")" "$ln"
+    if sed -n "${ln}p" "$file" | grep -q '{ *\(#:.*\)\{0,1\}$'; then
+      sed -n "${ln},/^}/p" "$file" | sed 's/^/    /'
+    else
+      sed -n "${ln}p" "$file" | sed 's/^ *//; s/^/    /'
+    fi
+  done
+  echo
+  exit 0
+fi
+
+if [ -t 1 ]; then color=1; else color=0; fi
+
+printf '%s\n' "$rows" | LC_ALL=C awk -F '\t' -v q="$q" -v here="$here" -v color="$color" '
+  # UTF-8 devam baytlarını saymadan görünen genişlik
+  function vis(s,   t, c) { t = s; c = gsub(/[\200-\277]/, "", t); return length(s) - c }
+  function pad(s, w,   n) { n = w - vis(s); while (n-- > 0) s = s " "; return s }
+  function cut(s, w) {
+    if (vis(s) <= w) return s
+    s = substr(s, 1, w - 1)
+    sub(/[\300-\377][\200-\277]*$/, "", s)
+    return s "\342\200\246"
+  }
+  function paint(code, s) { return color ? "\033[" code "m" s "\033[0m" : s }
+  function active(l) { return l == "her yer" || l == "bu makine" || l == here }
+  BEGIN {
+    print ""
+    print paint("2", "her yer = mac + sunucu   mac = sadece macOS   sunucu = sadece Linux   bu makine = ~/.zshrc.local")
+    print paint("2", "tek komutun tanımı: info <ad>   arama: info <kelime>")
+  }
+  {
+    if (q != "" && index(tolower($3 " " $4 " " $5), tolower(q)) == 0) next
+    if ($1 != layer) {
+      layer = $1; sec = ""
+      print ""
+      print paint("1;36", "== " layer " ==") (active(layer) ? "" : paint("2", "  (bu makinede yüklü değil)"))
+    }
+    if ($2 != sec) { sec = $2; print "  " paint("1", sec) }
+    print "    " paint("33", pad($3, 10)) "  " paint("2", pad(cut($4, 44), 44)) "  " $5
+    shown++
+  }
+  END {
+    if (!shown) print "\n\"" q "\" ile eşleşen komut yok."
+    print ""
+    print paint("2", "oh-my-zsh git eklentisinin alias\047ları da yüklü: alias | grep git")
+    print ""
+  }
+'

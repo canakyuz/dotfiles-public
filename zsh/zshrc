@@ -1,0 +1,35 @@
+# Yükleme sırası: işletim sistemi katmanı, oh-my-zsh, ortak katman, alias açma,
+# makineye özel ~/.zshrc.local, sırlar ~/.secrets, prompt.
+
+# Bu dosya repodan symlink; DOTFILES gerçek konumdan çıkarılır.
+export DOTFILES=${${(%):-%x}:A:h:h}
+
+case $OSTYPE in
+  darwin*) source $DOTFILES/shell/mac.sh ;;
+  linux*)  source $DOTFILES/shell/linux.sh ;;
+esac
+path=($DOTFILES/bin $path)
+
+if [[ -d $HOME/.oh-my-zsh ]]; then
+  export ZSH=$HOME/.oh-my-zsh
+  ZSH_THEME=""
+  plugins=(git)
+  (( $+commands[eza] )) && plugins+=(eza)
+  (( $+commands[fzf] )) && plugins+=(fzf)
+  plugins+=(z)
+  for p in zsh-autosuggestions zsh-syntax-highlighting; do
+    [[ -d $ZSH/custom/plugins/$p ]] && plugins+=($p)
+  done
+  source $ZSH/oh-my-zsh.sh
+else
+  autoload -Uz compinit && compinit
+fi
+
+# oh-my-zsh'tan sonra: aynı adlı git alias'larında bizimkiler geçerli olsun
+source $DOTFILES/shell/common.sh
+source $DOTFILES/zsh/expand.zsh
+
+[[ -f $HOME/.zshrc.local ]] && source $HOME/.zshrc.local
+[[ -f $HOME/.secrets ]] && source $HOME/.secrets
+
+(( $+commands[starship] )) && eval "$(starship init zsh)"

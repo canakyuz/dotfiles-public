@@ -1,0 +1,37 @@
+#!/bin/sh
+# Kurulum: ./install
+# İki kez çalıştırmak güvenli: doğru link zaten varsa dokunmaz, gerçek bir dosya varsa yedekler.
+
+set -eu
+DOTFILES=$(cd "$(dirname "$0")" && pwd -P)
+stamp=$(date +%Y%m%d-%H%M%S)
+
+link() {
+  src=$DOTFILES/$1 dest=$2
+  if [ -L "$dest" ] && [ "$(readlink "$dest")" = "$src" ]; then
+    echo "  tamam   $dest"
+    return
+  fi
+  if [ -e "$dest" ] || [ -L "$dest" ]; then
+    mv "$dest" "$dest.bak.$stamp"
+    echo "  yedek   $dest.bak.$stamp"
+  fi
+  ln -s "$src" "$dest"
+  echo "  link    $dest -> $src"
+}
+
+# bash'te dağıtımın bashrc'si kalır, sonuna tek satır eklenir
+hook_bash() {
+  line=". \"$DOTFILES/bash/bashrc\"  # dotfiles"
+  if grep -qF "$line" "$HOME/.bashrc" 2>/dev/null; then
+    echo "  tamam   ~/.bashrc"
+  else
+    printf '\n%s\n' "$line" >> "$HOME/.bashrc"
+    echo "  ekle    ~/.bashrc"
+  fi
+}
+
+echo "dotfiles: $DOTFILES"
+command -v zsh >/dev/null 2>&1 && link zsh/zshrc "$HOME/.zshrc"
+[ "$(uname)" = Linux ] && hook_bash
+echo "bitti. yeni bir terminal aç ya da: exec \$SHELL"

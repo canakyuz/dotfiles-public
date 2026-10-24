@@ -1,0 +1,14 @@
+# Sunucuda bash için. install, ~/.bashrc'nin sonuna bunu yükleyen tek satır ekler;
+# dağıtımın kendi bashrc ayarları olduğu gibi kalır.
+
+DOTFILES=$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/.." && pwd)
+export DOTFILES
+
+case $OSTYPE in
+  darwin*) . "$DOTFILES/shell/mac.sh" ;;
+  linux*)  . "$DOTFILES/shell/linux.sh" ;;
+esac
+PATH="$DOTFILES/bin:$PATH"
+. "$DOTFILES/shell/common.sh"
+
+[ -f "$HOME/.secrets" ] && . "$HOME/.secrets"
